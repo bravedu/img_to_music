@@ -5,6 +5,7 @@ from io import BytesIO
 
 #图片识别成文本URL
 ImgToTextUrl = "http://127.0.0.1:8881/run/predict"
+ImgToTextUrlV2 = "http://127.0.0.1:8881/"
 ImgTextToMptUrl = "http://127.0.0.1:8882/"
 ImgMptToMusicUrl = "https://ws-eaefff98-4fc2-4c66-a75c-f5df074b74cb-debug.rde-ws.gic-sq.lanrui-ai.com/"
 
@@ -24,7 +25,6 @@ def imageBase64ToText(imgBase64):
 		"imgText" : imgData,
 		"error" : error
 	}
-
 
 def imgMptToMusic(musicPmt):
 	client = Client(ImgMptToMusicUrl)
@@ -129,11 +129,21 @@ def ImageUrlToText(imgUrl):
 	#下载文件获取文件内容进行base64内容读取
 	#获取图片内容转为base64内容
 	# 将这个图片保存在内存
-	response = requests.get(imgUrl) 
+	#response = requests.get(imgUrl) 
 	# 将这个图片从内存中打开，然后就可以用Image的方法进行操作了
-	image = Image.open(BytesIO(response.content))
+	#image = Image.open(BytesIO(response.content))
 	# 得到这个图片的base64编码
-	imageBase64 = str(base64.b64encode(BytesIO(response.content).read()), 'utf-8')
-	print(imageBase64)
+	#imageBase64 = str(base64.b64encode(BytesIO(response.content).read()), 'utf-8')
+	#print(imageBase64)
 	# 打印出这个base64编码
 	#return imageBase64ToText(imageBase64)
+	client = Client(imgUrl)
+	result = client.predict(
+        imgUrl, # str (filepath on your computer (or URL) of image) in 'image' Image component
+        api_name="/predict"
+	)
+	return {
+		"imgText" : result,
+		"error" : ""
+	}
+
