@@ -137,7 +137,7 @@ def ImageUrlToText(imgUrl):
 	#print(imageBase64)
 	# 打印出这个base64编码
 	#return imageBase64ToText(imageBase64)
-	client = Client(imgUrl)
+	client = Client(ImgToTextUrlV2)
 	result = client.predict(
         imgUrl, # str (filepath on your computer (or URL) of image) in 'image' Image component
         api_name="/predict"
