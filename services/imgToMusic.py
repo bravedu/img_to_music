@@ -30,8 +30,8 @@ def imgMptToMusic(musicPmt):
 	client = Client(ImgMptToMusicUrl)
 	musicGenRes = client.predict(
 				"large",	# str in 'Model' Radio component
-				musicPmt,	
-				"",	# str (filepath or URL to file) in 'Melody Condition (optional)' Audio component
+				musicPmt, # str  in 'Input Text' Textbox component
+				"",
 				15,	# int | float (numeric value between 1 and 120) in 'Duration' Slider component
 				250,	# int | float in 'Top-k' Number component
 				1,	# int | float in 'Top-p' Number component
