@@ -1,4 +1,4 @@
-import requests,json,os,base64,zhipuai,re
+import requests,json,os,base64
 from gradio_client import Client
 from PIL import Image
 from io import BytesIO
@@ -8,8 +8,7 @@ ImgToTextUrl = "http://127.0.0.1:8881/run/predict"
 ImgToTextUrlV2 = "http://127.0.0.1:8881/"
 ImgTextToMptUrl = "http://127.0.0.1:8882/"
 #ImgTextToMptUrl = "https://ws-45278d2f-b1ee-4619-b0a0-8bd979f96562-debug.rde-ws.gic-sq.lanrui-ai.com/llama2_api/"
-#ImgMptToMusicUrl = "https://ws-eaefff98-4fc2-4c66-a75c-f5df074b74cb-debug.rde-ws.gic-sq.lanrui-ai.com/"
-ImgMptToMusicUrl = "http://127.0.0.1:8883/"
+ImgMptToMusicUrl = "https://ws-eaefff98-4fc2-4c66-a75c-f5df074b74cb-debug.rde-ws.gic-sq.lanrui-ai.com/"
 
 #根据图片内容调用模型识别图片内容
 def imageBase64ToText(imgBase64):
@@ -62,29 +61,37 @@ def IsJson(jsonStr):
 
 #图片内容生成prompt
 def imgtextToMpt(imgText):
-	musicMpt = "我给你输入一段文字,帮我描述成一首MusicGen音乐prompt，包含音乐风格、情绪、参与演奏的乐器、音乐意境等元素。prompt 样例: “An 80s driving pop song with heavy drums and synth pads in the background”。输出的 prompt控制在30字内，不需要寒暄、打招呼等语气，直接输出prompt。输出Json格式: {\"title\":\"结果标题\", \"prompt\":\"结果prompt\"} 我输入的内容是“"+imgText+"”，没有更多信息可以提供，请创作,你只给我一个json格式内容就好，不需要额外信息, prompt内容用英文返回"
-	response = zhipuai.model_api.invoke(
-		model="chatglm_turbo",
-		prompt=[{"role": "user", "content": musicMpt}],
-		top_p=0.7,
-		temperature=0.9,
-	)
-	if 200 == response["code"] and 'data' in response and 'choices' in response["choices"] and response["data"]["choices"][0]["content"]:
-		input_str = response["data"]["choices"][0]["content"]
-		input_str = re.findall(r'{.*?}', input_str)
-		input_str = input_str[0].replace("\\", "")
-		imgMptMap = json.loads(input_str)
-		return {
-			"imgMpt" : imgMptMap["prompt"],
-			"error" : "",
-			"tag" : "right",
-		}
-	else:
+	response = requests.post(ImgTextToMptUrl, json={
+	"prompt" : "我给你输入一段文字,帮我描述成一首MusicGen音乐prompt，包含音乐风格、情绪、参与演奏的乐器、音乐意境等元素。prompt 样例: “An 80s driving pop song with heavy drums and synth pads in the background”。输出的 prompt控制在30字内，不需要寒暄、打招呼等语气，直接输出prompt。输出Json格式: {\"title\":\"结果标题\", \"prompt\":\"结果prompt\"} 我输入的内容是“"+imgText+"”，没有更多信息可以提供，请创作,你只给我一个json格式内容就好，不需要额外信息",
+	"history": []
+	}).json()
+	imgMptStr = GetMusicPmt(response["response"])
+	imgMptMap = IsJson(imgMptStr)
+	if imgMptMap == False:
+		if '{' not in imgMptStr:
+			imgMptStr = "{"+imgMptStr+"}"
+			imgMptMap = IsJson(imgMptStr)
+			if imgMptMap == False:
+				return {
+					"imgMpt" : "",
+					"error" : "未创作出更好的内容，请更换图片重试",
+					"tag" : "no {",
+				}
+			return {
+				"imgMpt" : imgMptMap["prompt"],
+				"error" : "",
+				"tag" : "no {",
+			}
 		return {
 			"imgMpt" : imgText,
 			"error" : "",
-			"tag" : response["msg"],
+			"tag" : "origon",
 		}
+	return {
+		"imgMpt" : imgMptMap["prompt"],
+		"error" : "",
+		"tag" : "right",
+	}
 
 def Mp3TxtToMusic(mp3PathUrl, userTxt):
 	client = Client(ImgMptToMusicUrl)
