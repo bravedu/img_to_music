@@ -11,6 +11,9 @@ ImgTextToMptUrl = "http://127.0.0.1:8882/"
 #ImgMptToMusicUrl = "https://ws-eaefff98-4fc2-4c66-a75c-f5df074b74cb-debug.rde-ws.gic-sq.lanrui-ai.com/"
 ImgMptToMusicUrl = "http://127.0.0.1:8883/"
 
+zhipuai.api_key = "cdc96e172da543a30c1923cc2c95f3ca.otuozN0TTHjgKmd3"
+
+
 #根据图片内容调用模型识别图片内容
 def imageBase64ToText(imgBase64):
 	response = requests.post(ImgToTextUrl, json={
