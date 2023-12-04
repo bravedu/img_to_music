@@ -72,7 +72,7 @@ def imgtextToMpt(imgText):
 		top_p=0.7,
 		temperature=0.9,
 	)
-	if 200 == response["code"] and 'data' in response and 'choices' in response["choices"] and response["data"]["choices"][0]["content"]:
+	if 200 == response["code"] and 'data' in response and 'choices' in response["data"]["choices"] and response["data"]["choices"][0]["content"]:
 		input_str = response["data"]["choices"][0]["content"]
 		input_str = re.findall(r'{.*?}', input_str)
 		input_str = input_str[0].replace("\\", "")
